@@ -34,9 +34,16 @@ OBJS = \
 	$K/rtc.o \
 	$K/time.o \
   $K/virtio_disk.o \
+	$K/syssocket.o \
 	$N/util.o \
 	$N/net.o \
 	$N/ether.o \
+	$N/ip.o \
+	$N/arp.o \
+	$N/icmp.o \
+	$N/udp.o \
+	$N/tcp.o \
+	$N/socket.o \
 	$P/std.o \
 	$P/virtio_net.o
 
@@ -79,7 +86,8 @@ CFLAGS += -fno-builtin-strchr -fno-builtin-exit -fno-builtin-malloc -fno-builtin
 CFLAGS += -fno-builtin-free -fno-builtin-strnlen -fno-builtin-snprintf -fno-builtin-vsnprintf
 CFLAGS += -fno-builtin-memcpy -Wno-f.main
 CFLAGS += -fno-builtin-printf -fno-builtin-fprintf -fno-builtin-vprintf
-CFLAGS += -I. -I $K -I $N -I $P -DHEXDUMP
+# CFLAGS += -I. -I $K -I $N -I $P -DHEXDUMP
+CFLAGS += -I. -I $K -I $N -I $P
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 
 # Disable PIE when possible (for Ubuntu 16.10 toolchain)
@@ -147,6 +155,7 @@ UPROGS=\
 	$U/_rm\
 	$U/_sh\
 	$U/_stressfs\
+	$U/_udpecho\
 	$U/_usertests\
 	$U/_grind\
 	$U/_wc\

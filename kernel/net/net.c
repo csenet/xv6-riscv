@@ -329,11 +329,11 @@ net_shutdown(void)
     debugf("shutting down");
 }
 
-//#include "ip.h"
-//#include "arp.h"
-//#include "icmp.h"
-//#include "udp.h"
-//#include "tcp.h"
+#include "ip.h"
+#include "arp.h"
+#include "icmp.h"
+#include "udp.h"
+#include "tcp.h"
 
 int
 net_init(void)
@@ -342,26 +342,26 @@ net_init(void)
         errorf("intr_init() failure");
         return -1;
     }
-//    if (ip_init() == -1) {
-//        errorf("ip_init() failure");
-//        return -1;
-//    }
-//    if (arp_init() == -1) {
-//        errorf("arp_init() failure");
-//        return -1;
-//    }
-//    if (icmp_init() == -1) {
-//        errorf("icmp_init() failure");
-//        return -1;
-//    }
-//    if (udp_init() == -1) {
-//        errorf("udp_init() failure");
-//        return -1;
-//    }
-//    if (tcp_init() == -1) {
-//        errorf("tcp_init() failure");
-//        return -1;
-//    }
+    if (ip_init() == -1) {
+        errorf("ip_init() failure");
+        return -1;
+    }
+   if (arp_init() == -1) {
+       errorf("arp_init() failure");
+       return -1;
+   }
+   if (icmp_init() == -1) {
+       errorf("icmp_init() failure");
+       return -1;
+   }
+   if (udp_init() == -1) {
+       errorf("udp_init() failure");
+       return -1;
+   }
+   if (tcp_init() == -1) {
+       errorf("tcp_init() failure");
+       return -1;
+   }
     infof("initialized");
     return 0;
 }
