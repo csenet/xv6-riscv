@@ -3,6 +3,7 @@
 #include "memlayout.h"
 #include "riscv.h"
 #include "defs.h"
+#include "time.h"
 
 volatile static int started = 0;
 
@@ -27,6 +28,9 @@ int main()
     iinit();         // inode table
     fileinit();      // file table
     virtio_disk_init(); // emulated hard disk
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    printf("tv: {sec: %ld, usec: %ld}\n", tv.tv_sec, tv.tv_usec);
     userinit();      // first user process
     __sync_synchronize();
     started = 1;
