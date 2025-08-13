@@ -81,6 +81,12 @@ int            printf(char*, ...) __attribute__ ((format (printf, 1, 2)));
 void            panic(char*) __attribute__((noreturn));
 void            printfinit(void);
 
+// printfmt.c
+void            vprintfmt(void (*)(int, void*), void*, const char*, void*);
+void            printfmt(void (*)(int, void*), void*, const char*, ...);
+int             vsnprintf(char*, int, const char*, void*);
+int             snprintf(char*, int, const char*, ...);
+
 // proc.c
 int             cpuid(void);
 void            exit(int);
@@ -132,6 +138,7 @@ char*           safestrcpy(char*, const char*, int);
 int             strlen(const char*);
 int             strncmp(const char*, const char*, uint);
 char*           strncpy(char*, const char*, int);
+int             strnlen(const char*, uint);
 
 // syscall.c
 void            argint(int, int*);
