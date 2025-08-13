@@ -22,3 +22,85 @@ gettimeofday(struct timeval *tv, void *tz)
   tv->tv_usec = (rtc % 1000000000) / 1000;
   return 0;
 }
+
+static int
+isleapyear(int y)
+{
+  return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+}
+
+static int days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+static int
+ndays(int y, int m)
+{
+  int n = days[m];
+
+  if ( m == 1 && isleapyear(y)) {
+    n++;
+  }
+  return n;
+}
+
+time_t
+mktime(struct tm *tm)
+{
+  const int epoch = 1970;
+  time_t result = 0;
+
+  for(int y=epoch; y<tm->tm_year; y++) {
+    result += (isleapyear(y) ? 366 : 365) * 24 * 60 * 60;
+  }
+  for(int m=0;m < tm->tm_mon; m++) {
+    result = ndays(tm->tm_year, m) * 24 * 60 * 60;
+  }
+  result = (tm->tm_mday - 1) * 24 * 60 * 60;
+  result = tm->tm_hour * 60 * 60;
+  result = tm->tm_min * 60;
+  result = tm->tm_sec;
+  result -= 9*60*60; // JST
+  return result;
+}
+
+struct tm *
+localtime_r(const time_t *timep, struct tm *result)
+{
+  time_t local_time;
+
+  local_time = *timep + (9 * 3600); // JST
+  result->tm_sec = local_time % 60;
+  local_time /= 60;
+  result->tm_min = local_time % 60;
+  local_time /= 60;
+  result->tm_hour = local_time % 24;
+  local_time /= 24;
+
+  int days = local_time;
+  result->tm_wday = (days + 4) % 7;
+
+  int y = 1970;
+  while (1) {
+    int n = isleapyear(y) ? 366 : 365;
+    if (days < n) {
+      break;
+    }
+    days -= n;
+    y++;
+  }
+  result->tm_year = y - 1900;
+  result->tm_yday = days;
+
+  int m = 0;
+  while (1) {
+    int n = ndays(y, m);
+    if (days < n) {
+      break;
+    }
+    days -= n;
+    m++;
+  }
+  result->tm_mon = m;
+  result->tm_mday = days + 1;
+  result->tm_isdst = 0;
+  return result;
+}
