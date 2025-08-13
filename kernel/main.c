@@ -29,6 +29,8 @@ int main()
     fileinit();      // file table
     virtio_disk_init(); // emulated hard disk
     netinit();       // network stack
+    virtio_net_init(); // emulated network card
+    netrun();        // start networking
     userinit();      // first user process
     __sync_synchronize();
     started = 1;

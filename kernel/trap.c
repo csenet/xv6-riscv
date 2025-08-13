@@ -5,9 +5,13 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "softirq.h"
 
 struct spinlock tickslock;
 uint ticks;
+
+struct spinlock pendinglock;
+uint64 pending;
 
 extern char trampoline[], uservec[], userret[];
 
@@ -20,6 +24,7 @@ void
 trapinit(void)
 {
   initlock(&tickslock, "time");
+  initlock(&pendinglock, "pending");
 }
 
 // set up to take exceptions and traps while in the kernel.
@@ -176,6 +181,24 @@ clockintr()
   w_stimecmp(r_time() + 1000000);
 }
 
+void
+softintr()
+{
+  acquire(&pendinglock);
+  uint64 irqs = pending;
+  pending = 0;
+  release(&pendinglock);
+
+  if(irqs & SOFT_IRQ_NET_RX){
+    net_softirq_handler();
+  }
+  if(irqs & SOFT_IRQ_NET_EVENT){
+    net_event_handler();
+  }
+
+  w_sip(r_sip() & ~SIP_SSIP);
+}
+
 // check if it's an external interrupt or software interrupt,
 // and handle it.
 // returns 2 if timer interrupt,
@@ -196,6 +219,8 @@ devintr()
       uartintr();
     } else if(irq == VIRTIO0_IRQ){
       virtio_disk_intr();
+    } else if(irq == VIRTIO1_IRQ){
+      virtio_net_intr();
     } else if(irq){
       printf("unexpected interrupt irq=%d\n", irq);
     }
@@ -206,6 +231,10 @@ devintr()
     if(irq)
       plic_complete(irq);
 
+    return 1;
+  } else if(scause == 0x8000000000000001L){
+    // software interrupt
+    softintr();
     return 1;
   } else if(scause == 0x8000000000000005L){
     // timer interrupt.
