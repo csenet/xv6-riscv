@@ -28,14 +28,7 @@ int main()
     iinit();         // inode table
     fileinit();      // file table
     virtio_disk_init(); // emulated hard disk
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    printf("tv: {sec: %ld, usec: %ld}\n", tv.tv_sec, tv.tv_usec);
-    struct tm tm;
-    localtime_r(&tv.tv_sec, &tm);
-    printf("%04d/%02d/%02d %02d:%02d:%02d\n",
-      tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-    printf("%ld\n", mktime(&tm));
+    netinit();       // network stack
     userinit();      // first user process
     __sync_synchronize();
     started = 1;
